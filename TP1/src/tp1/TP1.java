@@ -5,10 +5,9 @@
  */
 package tp1;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Scanner;
+
+
 
 /**
  *
@@ -16,31 +15,71 @@ import java.util.Scanner;
  */
 public class TP1 {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws Exception{
         // TODO code application logic here
         
-        Scanner ler = new Scanner(System.in);
+        /*Scanner ler = new Scanner(System.in);
         
-        System.out.printf("Informe o nome de arquivo texto:\n");
-        String nome = ler.nextLine();
+        System.out.printf("Informe o texto:\n");
+        String texto = ler.nextLine();
         
-        // le o arquivo e guarda em arq
-        FileReader arq = new FileReader(nome);
-        
-        BufferedReader lerArq = new BufferedReader(arq);
- 
-        String linha = lerArq.readLine();   // lê a primeira linha
-                                            // a variável "linha" recebe o valor "null" quando o processo
-                                            // de repetição atingir o final do arquivo texto
-        // @TODO: O texto foi passado como parâmetro e não o arquivo, mudar isso
+        String [] textoSeparado = texto.split(" ");
         
         
+        System.out.println("\n--------------\nVetor: ");
+        for (int i = 0; i < textoSeparado.length; i++){
+            System.out.println(textoSeparado[i]);
+        }
+  
+        char [][] caracteres = null;
+        caracteres = new char [30][30];
+        char [] textoArray;
+        for (int i = 0; i < textoSeparado.length; i++){ // linha
+            textoArray = textoSeparado[i].toCharArray();
+            for (int j = 0; j < textoArray.length; j++){
+                caracteres[i][j] = textoArray[j];
+                System.out.println(caracteres[i][j]);
+            }
+        }*/
+        
+        
+        ExtraiPalavra palavras = new ExtraiPalavra("delim", "exemplo1");
+        String palavra = null;
+
+        String[] palavrasArray = null;
+        palavrasArray = new String[100000000];
+
+        int totPal = 0;
+        
+        while ((palavra = palavras.proximaPalavra())!= null) {
+            // O primeiro espaço depois da palavra não é codificado
+            if(palavra.equals(" ")) continue;
+            palavrasArray[totPal] = palavra;
+            totPal++;
+            System.out.println(palavrasArray[totPal-1]);
+
+
+        }
+        palavras.fecharArquivos();
+        
+        System.out.println("totPal = " + totPal);
+
         
         
         
+        char [][] caracteres = null;
+        caracteres = new char [totPal+1][totPal+1];
+        char [] textoArray;
+        for (int i = 0; i < palavrasArray.length; i++){ // linha
+            textoArray = palavrasArray[i].toCharArray();
+            for (int j = 0; j < textoArray.length; j++){
+                caracteres[i][j] = textoArray[j];
+                System.out.println(caracteres[i][j]);
+            }
+        }
+        
+        for (int i = 0; i < caracteres.length; i++){
+            System.out.println(caracteres[i]);
+        }
     }
-    
 }
