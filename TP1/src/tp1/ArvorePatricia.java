@@ -55,8 +55,10 @@ public class ArvorePatricia {
   private void pesquisa (BitSet k, PatNo t) {
     if (this.eExterno (t)) {
       PatNoExt aux = (PatNoExt)t;
-      if (aux.chave == k) System.out.println ("Elemento encontrado");
-      else System.out.println ("Elemento nao encontrado");
+      if (aux.chave == k)
+          System.out.println ("Elemento encontrado");
+      else
+          System.out.println ("Elemento nao encontrado");
     }
     else { 
       PatNoInt aux = (PatNoInt)t;
