@@ -5,6 +5,8 @@
  */
 package tp1;
 
+import java.util.BitSet;
+
 /**
  *
  * @author arthur
@@ -15,18 +17,21 @@ public class ArvorePatricia {
     int index; PatNo esq, dir;
   }  
   private static class PatNoExt extends PatNo {
-    char chave; // @{\it O tipo da chave depende da aplica\c{c}\~ao}@
+    BitSet chave; // @{\it O tipo da chave depende da aplica\c{c}\~ao}@
   }
   
   private PatNo raiz;
+  private int linha, coluna;
+
   private int nbitsChave;
  
   // @{\it Retorna o i-\'esimo bit da chave k a partir da esquerda}@
-  private int bit (int i, char k) {
+  private int bit (int i, BitSet k) {
     if (i == 0) return 0;
-    int c = (int)k;
-    for (int j = 1; j <= this.nbitsChave - i; j++) c = c/2;
-    return c % 2;
+    for (int j = 1; j <= this.nbitsChave - i; j++){
+        if (k.get(j)) return 1;
+    }
+    return 0;
   }
 
   // @{\it Verifica se p \'e n\'o externo}@
@@ -41,13 +46,13 @@ public class ArvorePatricia {
     return p;
   }
 
-  private PatNo criaNoExt (char k) {
+  private PatNo criaNoExt (BitSet k) {
     PatNoExt p = new PatNoExt ();
     p.chave = k;
     return p;
   }
   
-  private void pesquisa (char k, PatNo t) {
+  private void pesquisa (BitSet k, PatNo t) {
     if (this.eExterno (t)) {
       PatNoExt aux = (PatNoExt)t;
       if (aux.chave == k) System.out.println ("Elemento encontrado");
@@ -60,7 +65,7 @@ public class ArvorePatricia {
     }
   }
 
-  private PatNo insereEntre (char k, PatNo t, int i) {
+  private PatNo insereEntre (BitSet k, PatNo t, int i) {
     PatNoInt aux = null; 
     if (!this.eExterno (t)) aux = (PatNoInt)t;
     if (this.eExterno (t) || (i < aux.index)) { // @{\it Cria um novo n\'o externo}@
@@ -76,7 +81,7 @@ public class ArvorePatricia {
     }
   }
   
-  private PatNo insere (char k, PatNo t) {
+  private PatNo insere (BitSet k, PatNo t, int linha, int coluna) {
     if (t == null) return this.criaNoExt (k);
     else {
       PatNo p = t;
@@ -89,7 +94,7 @@ public class ArvorePatricia {
       while ((i <= this.nbitsChave)&&
              (this.bit (i, k) == this.bit (i, aux.chave))) i++;
       if (i > this.nbitsChave) {
-        System.out.println ("Erro: chave ja esta na arvore"); 
+        //System.out.println ("Erro: chave ja esta na arvore"); 
         return t;
       }
       else return this.insereEntre (k, t, i);
@@ -122,7 +127,9 @@ public class ArvorePatricia {
     this.raiz = null; this.nbitsChave = nbitsChave; 
   }
   
-  public void pesquisa (char k) { this.pesquisa (k, this.raiz); }
+  public void pesquisa (BitSet k) { this.pesquisa (k, this.raiz); }
   
-  public void insere (char k) { this.raiz = this.insere (k, this.raiz); } 
+  public void insere (BitSet k, int linha, int coluna) { 
+      this.raiz = this.insere (k, this.raiz, coluna, linha);
+  } 
 }

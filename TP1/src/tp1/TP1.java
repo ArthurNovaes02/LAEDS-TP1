@@ -5,6 +5,8 @@
  */
 package tp1;
 
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Scanner;
 
 
@@ -16,70 +18,180 @@ import java.util.Scanner;
 public class TP1 {
 
     public static void main(String[] args) throws Exception{
-        // TODO code application logic here
-        
-        /*Scanner ler = new Scanner(System.in);
-        
-        System.out.printf("Informe o texto:\n");
-        String texto = ler.nextLine();
-        
-        String [] textoSeparado = texto.split(" ");
-        
-        
-        System.out.println("\n--------------\nVetor: ");
-        for (int i = 0; i < textoSeparado.length; i++){
-            System.out.println(textoSeparado[i]);
-        }
-  
-        char [][] caracteres = null;
-        caracteres = new char [30][30];
-        char [] textoArray;
-        for (int i = 0; i < textoSeparado.length; i++){ // linha
-            textoArray = textoSeparado[i].toCharArray();
-            for (int j = 0; j < textoArray.length; j++){
-                caracteres[i][j] = textoArray[j];
-                System.out.println(caracteres[i][j]);
-            }
-        }*/
-        
+        ArvorePatricia a = new ArvorePatricia(16);
         
         ExtraiPalavra palavras = new ExtraiPalavra("delim", "exemplo1");
         String palavra = null;
 
-        String[] palavrasArray = null;
-        palavrasArray = new String[100000000];
+        String[] palavrasArray = new String[100000000];
+        
+        int linha = 0, coluna = 0;
 
         int totPal = 0;
         
         while ((palavra = palavras.proximaPalavra())!= null) {
             // O primeiro espaço depois da palavra não é codificado
             if(palavra.equals(" ")) continue;
+//            palavrasList.add(palavra);
             palavrasArray[totPal] = palavra;
             totPal++;
-            System.out.println(palavrasArray[totPal-1]);
+//            System.out.println(palavrasArray[totPal-1]);
 
 
         }
         palavras.fecharArquivos();
         
-        System.out.println("totPal = " + totPal);
-        // teste
         
         
-        
+        // Converte cada palavra em um vetor de char
         char [][] caracteres = null;
-        caracteres = new char [totPal+1][totPal+1];
+//        int [][] caracteresInt = null;
+        int dec;
+ 
+        String binario;
+        
+        
+        BitSet caracteresBit = new BitSet(16);        
+        
+        caracteres = new char [totPal][16]; // cria a matriz que vai armazenar as palavras e as letras
+//        caracteresInt = new int [totPal+1][totPal+1]; // cria a matriz que vai armazenar as palavras e as letras
         char [] textoArray;
-        for (int i = 0; i < palavrasArray.length; i++){ // linha
-            textoArray = palavrasArray[i].toCharArray();
-            for (int j = 0; j < textoArray.length; j++){
-                caracteres[i][j] = textoArray[j];
-                System.out.println(caracteres[i][j]);
+        
+        for (int i = 0; i < totPal; i++){     // linha
+            int [] r = new int[totPal+1];
+            int [] q = new int[totPal+1];
+        
+            textoArray = palavrasArray[i].toCharArray();    // converte o a palavra para um array
+            
+            // limita só a tabela ascii
+            if (textoArray[0] == '\n'){
+                coluna = 0;
+                linha ++;
+            }
+            if ((textoArray[0] >= 65 && textoArray[0] <= 90) || (textoArray[0] >= 97 && textoArray[0] <= 122)){
+                System.out.println(textoArray);
+                System.out.println("linha: " + linha + " coluna: " + coluna + "\n");
+                coluna ++;
+
+                for (int j = 0; j < 16; j++){    // coluna
+                    // cria o vetor de cada palavra e completa com zero se a palavra tiver menos que 16 caracteris
+                    if(j < textoArray.length)
+                        caracteres[i][j] = textoArray[j];
+                    else
+                        caracteres[i][j] = '0';
+
+
+                    // converte cada caracter por um int
+                    dec = (int)caracteres[i][j];
+                    int b = 0;  // variavel iteradora
+                    // enquanto o quociente for diferente de 1, o programa continuará calculando
+                    while (dec != 1){     
+                        q[b] = dec/2;   // pega a parte inteira
+
+                        r[b] = dec % 2; //array que calcula e armazena os restos
+                        dec=q[b];       //atribuindo novo valor para q[i], pra que seja possível a continuação do cálculo
+                        b++;
+                    }
+                    // pega o ultimo resto
+                    if (q[b-1] == 1) r[b] = 1;
+
+
+                    // salva o vetor em uma string
+                    binario = "";   // zera a string
+                    // adiciona termo a termo de traz para frente
+                    for (int it = 7; it >= 0; it --){
+                        binario += r[it];
+                    }
+
+
+                    // montado o bitset
+                    caracteresBit.clear();  // limpa o bitset
+                    for (int c = 0; c < binario.length(); c++) {
+                        if (binario.charAt(c) == '1') {
+                            caracteresBit.set(c);
+                        }
+    //                    if(caracteresBit.get(c)) System.out.print("1");
+    //                    else System.out.print("0");
+                    }
+    //                System.out.println("");
+
+                    // bitset montado, hora de enviar para a arvore
+//                    a.insere(caracteresBit, linha, coluna);
+                }
             }
         }
         
-        for (int i = 0; i < caracteres.length; i++){
-            System.out.println(caracteres[i]);
+        
+        // para fazer a pesquisa é necessário que a palavra inserida seja convertida também para um bitset
+        String [] procura = new String[] {  "trabalho",
+                                            "computacao", 
+                                            "governo", 
+                                            "educacao", 
+                                            "tecnologia", 
+                                            "formacao", 
+                                            "desenvolvimento", 
+                                            "que", 
+                                            "informatica", 
+                                            "em",
+                                            "crise"};
+        // Converte a string para bit set
+        
+        char caracteresProcura[][] = new char [procura.length][16]; // cria a matriz que vai armazenar as palavras e as letras
+        
+        for (int i = 0; i < procura.length; i++){     // palavras que vão ser procuradas
+            int [] r = new int[procura.length];
+            int [] q = new int[procura.length];
+            
+            
+            textoArray = procura[i].toCharArray();    // converte o a palavra para um array
+            for (int j = 0; j < 16; j++){    // coluna
+                // cria o vetor de cada palavra e completa com zero se a palavra tiver menos que 16 caracteris
+                if(j < textoArray.length)
+                    caracteresProcura[i][j] = textoArray[j];
+                else
+                    caracteresProcura[i][j] = '0';
+                
+                
+                // converte cada caracter por um int
+                dec = (int)caracteresProcura[i][j];
+                int b = 0;  // variavel iteradora
+                // enquanto o quociente for diferente de 1, o programa continuará calculando
+                while (dec != 1){     
+                    q[b] = dec/2;   // pega a parte inteira
+
+                    r[b] = dec % 2; //array que calcula e armazena os restos
+                    dec=q[b];       //atribuindo novo valor para q[i], pra que seja possível a continuação do cálculo
+                    b++;
+                }
+                // pega o ultimo resto
+                if (q[b-1] == 1) r[b] = 1;
+                
+                
+                // salva o vetor em uma string
+                binario = "";   // zera a string
+                // adiciona termo a termo de traz para frente
+                for (int it = 7; it >= 0; it --){
+                    binario += r[it];
+                }
+                
+                
+                // montado o bitset
+                caracteresBit.clear();  // limpa o bitset
+                for (int c = 0; c < binario.length(); c++) {
+                    if (binario.charAt(c) == '1') {
+                        caracteresBit.set(c);
+                    }
+//                    if(caracteresBit.get(c)) System.out.print("1");
+//                    else System.out.print("0");
+                }
+//                System.out.println("");
+                
+                // bitset montado, hora de enviar para a arvore
+            }
+            
         }
+        
+        
+        
     }
 }
