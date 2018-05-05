@@ -63,7 +63,7 @@ public class TP1 {
         palavras.fecharArquivos();
         
         System.out.println("totPal = " + totPal);
-
+        // teste
         
         
         
