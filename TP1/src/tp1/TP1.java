@@ -5,9 +5,12 @@
  */
 package tp1;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Scanner;
+
+import tp1.ArvorePatricia;
 
 
 
@@ -18,14 +21,13 @@ import java.util.Scanner;
 public class TP1 {
 
     public static void main(String[] args) throws Exception{
-        ArvorePatricia a = new ArvorePatricia(16);
+        ArvorePatricia a = new ArvorePatricia(128);
 
-        StringBuilder s;
-                
-        ExtraiPalavra palavras = new ExtraiPalavra("delim", "exemplo1");
+        ExtraiPalavra palavras = new ExtraiPalavra("delim", "exemplo2");
         String palavra = null;
-
-        String[] palavrasArray = new String[100000000];
+        
+        // array que contem todas as palavras to texto
+        String[] textoArray = new String[100000000];
         
         int linha = 0, coluna = 0;
 
@@ -34,62 +36,60 @@ public class TP1 {
         while ((palavra = palavras.proximaPalavra())!= null) {
             // O primeiro espaço depois da palavra não é codificado
             if(palavra.equals(" ")) continue;
-//            palavrasList.add(palavra);
-            palavrasArray[totPal] = palavra;
+            textoArray[totPal] = palavra;
             totPal++;
-//            System.out.println(palavrasArray[totPal-1]);
-
         }
         palavras.fecharArquivos();
         
-        
-        
-        // Converte cada palavra em um vetor de char
-        char [][] caracteres = null;
-//        int [][] caracteresInt = null;
+        // cria uma matriz pra armazenar todo o texto sendo que cada coluna possui uma plaavra e cada linha uma letra
+        char [][] caracteres = new char [totPal][16]; ;
+        // variavel que vai armazenar o valor decimal de cada letra
         int dec;
  
-        String binario = "";
-//        StringBuilder binarioCompleto;
-        String binarioCompleto;
-
+        String binario = "";        // começa zerando a string
+        String binarioCompleto;     // String que vai armazenar o valor binario de cada palavra
         
+        // variavel que armazena a sequencia de bit de cada palavra
+        BitSet caracteresBit = new BitSet(128);
+        caracteresBit.clear();
+        a.insere(caracteresBit, linha, coluna);
         
-        BitSet caracteresBit = new BitSet(16);        
+        // array que vai armazenar uma unica palavra
+        char [] palavraArray;
         
-        caracteres = new char [totPal][16]; // cria a matriz que vai armazenar as palavras e as letras
-//        caracteresInt = new int [totPal+1][totPal+1]; // cria a matriz que vai armazenar as palavras e as letras
-        char [] textoArray;
-        
-        for (int i = 0; i < totPal; i++){     // linha
+        // faz essa iteracao ate ler todas as palavras
+        for (int i = 0; i < totPal; i++){
             int [] r = new int[totPal+1];
             int [] q = new int[totPal+1];
         
-            textoArray = palavrasArray[i].toCharArray();    // converte o a palavra para um array
+            // converte cada palavra para um array
+            palavraArray = textoArray[i].toCharArray();    
             
-            // limita só a tabela ascii
-            if (textoArray[0] == '\n'){
+            // os dois proximos if's sao para limita caracteres somente da tabela ascii
+            if (palavraArray[0] == '\n'){
                 coluna = 0;
                 linha ++;
             }
-            if ((textoArray[0] >= 65 && textoArray[0] <= 90) || (textoArray[0] >= 97 && textoArray[0] <= 122)){
-//                System.out.println(textoArray);
-//                System.out.println("linha: " + linha + " coluna: " + coluna + "\n");
+            if ((palavraArray[0] >= 65 && palavraArray[0] <= 90) || (palavraArray[0] >= 97 && palavraArray[0] <= 122)){
                 coluna ++;
                 
-//                binarioCompleto = new StringBuilder(); // zera o binario completo
+                // limpa a string que recebe o valor binario completo de uma palavra
                 binarioCompleto = "";
+                
+                // dentro de cada palavra, agora converte cada caracter para um valor binario
+                // lebrando que cada palavra so pode ter 16 caracteres
                 for (int j = 0; j < 16; j++){
-                    // cria o vetor de cada palavra e completa com zero se a palavra tiver menos que 16 caracteris
-                    if(j < textoArray.length)
-                        caracteres[i][j] = textoArray[j];
+                    // cria o vetor de cada palavra
+                    if(j < palavraArray.length)
+                        caracteres[i][j] = palavraArray[j];
+                    // completa com zero se a palavra tiver menos que 16 caracteris
                     else
                         caracteres[i][j] = ' ';
                     
-//                    System.out.println(caracteres[i][j]);
-
-                    // converte cada caracter por um int
+                    // converte explicitamente cada caracter por um int
                     dec = (int)caracteres[i][j];
+                    
+                    /********* Conversao de decimal para binario **************/
                     int b = 0;  // variavel iteradora
                     // enquanto o quociente for diferente de 1, o programa continuará calculando
                     while (dec != 1){     
@@ -101,7 +101,7 @@ public class TP1 {
                     }
                     // pega o ultimo resto
                     if (q[b-1] == 1) r[b] = 1;
-
+                    /******************** fim da conversao ********************/
 
                     // salva o vetor em uma string
                     binario = "";   // zera a string
@@ -109,68 +109,63 @@ public class TP1 {
                     for (int it = 7; it >= 0; it --){
                         binario += r[it];
                     }
-//                    System.out.println(binario);
                     
-//                    binarioCompleto.append(binario);
+                    // Concatena todas as letras em uma string
                     binarioCompleto += binario;
-                                    
                 }
-//                System.out.println(binarioCompleto);
-                // montado o bitset
-                caracteresBit.clear();  // limpa o bitset
-                for (int c = 0; c < binarioCompleto.length(); c++) {
-                    if (binarioCompleto.charAt(c) == '1') {
-                        caracteresBit.set(c);
-                    }
-//                        if(caracteresBit.get(c)) System.out.print("1");
-//                        else System.out.print("0");
-                }
-//                    System.out.println("");
-
-                // bitset montado, hora de enviar para a arvore
+                
+                
+                // insere na arvore
+                caracteresBit = a.atualizaBitSet(binarioCompleto);
                 a.insere(caracteresBit, linha, coluna);
             }
         }
         
-        
+        a.imprime();
         
         /************************* P E S Q U I S A ****************************/
         
         // para fazer a pesquisa é necessário que a palavra inserida seja convertida também para um bitset
-        String [] procura = new String[] {  "ztraaaaaalho`````",
-                                            "çomputacao``````", 
-                                            "goveao``````````", 
-                                            "educacao````````", 
-                                            "tecnologia``````", 
-                                            "formacao````````", 
-                                            "desenvolvimento`", 
-                                            "que`````````````", 
-                                            "informatica`````", 
-                                            "em``````````````",
-                                            "crise```````````"};
-        // Converte a string para bit set
-        
-        char caracteresProcura[][] = new char [procura.length][16]; // cria a matriz que vai armazenar as palavras e as letras
-        
-        for (int i = 0; i < procura.length; i++){     // palavras que vão ser procuradas
+        String [] procura = new String[] {  "sociedade```````",
+                                            "software````````",
+                                            "ideia```````````",
+                                            "pessoa``````````",
+                                            "Informatica`````",
+                                            "etica```````````",
+                                            "muito```````````",
+                                            "ciencia`````````",
+                                            "computacao``````",
+                                            "que`````````````",
+                                            "area````````````",
+                                            "Moral```````````"};
+            
+        // faz essa iteracao ate ler todas as palavras
+        for (int i = 0; i < procura.length; i++){
             int [] r = new int[procura.length];
             int [] q = new int[procura.length];
+        
+            // converte cada palavra para um array
+            palavraArray = textoArray[i].toCharArray();    
             
-            int recebe = 1;
+                
+            // limpa a string que recebe o valor binario completo de uma palavra
+            binarioCompleto = "";
             
-            textoArray = procura[i].toCharArray();    // converte o a palavra para um array
             
-            binarioCompleto = ""; // zera o binario completo
-            for (int j = 0; j < 16 && recebe == 1; j++){    // coluna
-                // cria o vetor de cada palavra e completa com zero se a palavra tiver menos que 16 caracteris
-                if(j < textoArray.length)
-                    caracteresProcura[i][j] = textoArray[j];
+            // dentro de cada palavra, agora converte cada caracter para um valor binario
+            // lebrando que cada palavra so pode ter 16 caracteres
+            for (int j = 0; j < 16; j++){
+                // cria o vetor de cada palavra
+                if(j < palavraArray.length)
+                    caracteres[i][j] = palavraArray[j];
+                // completa com zero se a palavra tiver menos que 16 caracteris
                 else
-                    caracteresProcura[i][j] = '0';
-                
-                
-                // converte cada caracter por um int
-                dec = (int)caracteresProcura[i][j];
+                    caracteres[i][j] = ' ';
+
+                // converte explicitamente cada caracter por um int
+                dec = (int)caracteres[i][j];
+
+                /********* Conversao de decimal para binario **************/
                 int b = 0;  // variavel iteradora
                 // enquanto o quociente for diferente de 1, o programa continuará calculando
                 while (dec != 1){     
@@ -182,50 +177,22 @@ public class TP1 {
                 }
                 // pega o ultimo resto
                 if (q[b-1] == 1) r[b] = 1;
-                
-                
+                /******************** fim da conversao ********************/
+
                 // salva o vetor em uma string
                 binario = "";   // zera a string
                 // adiciona termo a termo de traz para frente
                 for (int it = 7; it >= 0; it --){
                     binario += r[it];
                 }
+
+                // Concatena todas as letras em uma string
                 binarioCompleto += binario;
             }
 
-//            System.out.println(binarioCompleto);
-            // montado o bitset
-            
-            char [] charArray = binarioCompleto.toCharArray();
-            caracteresBit.clear();  // limpa o bitset
-            for (int x = 0; x < binarioCompleto.length(); x++) {
-                if (binarioCompleto.charAt(x) == '1') {
-                    caracteresBit.set(x);
-                }
-            }
-           
-//            System.out.println(caracteresBit);
-            
-//            System.out.println("");
-            
-
-            // bitset do caracter montado, hora de enviar para a arvore
+            // com bitset do caracter montado, hora de enviar para a arvore
+            caracteresBit = a.atualizaBitSet(binarioCompleto);
             a.pesquisa(caracteresBit);
-                
-                
-//                if (recebe == 0){
-//                    System.out.println("Palavra não encontrada");
-//                }
-//            if (recebe == 1)
-//                System.out.println("Palavra encontrada");
-//            else 
-//                System.out.println("Palavra NÃO encontrada");
-//            
-//            recebe = 1;
-
         }
-        
-        
-        
     }
 }

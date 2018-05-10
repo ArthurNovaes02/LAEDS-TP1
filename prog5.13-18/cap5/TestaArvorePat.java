@@ -18,7 +18,7 @@ public class TestaArvorePat {
     for (int i = 0; i < vetor.length; i++) { 
       char c = vetor[i];
       dicionario.insere (c);
-      System.out.println ("Inseriu chave"+ i + ": " + (int)c + " -- char:" + c);
+      //System.out.println ("Inseriu chave"+ i + ": " + (int)c + " -- char:" + c);
     }
     dicionario.imprime ();
 
@@ -28,7 +28,7 @@ public class TestaArvorePat {
     // @{\it Pesquisa cada chave na \'arvore}@
     for (int i = 0; i < vetor.length; i++) {
       char c = vetor[i];
-      System.out.println ("Pesquisando chave" + i + ": " + c);
+      //System.out.println ("Pesquisando chave" + i + ": " + c);
       dicionario.pesquisa (c);
     }
   }
